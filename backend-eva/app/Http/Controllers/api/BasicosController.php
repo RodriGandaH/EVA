@@ -23,7 +23,7 @@ class BasicosController extends Controller
 
         $opciones_incorrectas = [];
         while (count($opciones_incorrectas) < 3) {
-            $opcion = rand(max(1, $respuesta_correcta - 10), $respuesta_correcta + 10);
+            $opcion = rand($respuesta_correcta - 10, $respuesta_correcta + 10);
             if (!in_array($opcion, $opciones_incorrectas) && $opcion != $respuesta_correcta) {
                 $opciones_incorrectas[] = $opcion;
             }
