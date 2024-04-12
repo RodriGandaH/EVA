@@ -13,7 +13,7 @@ function If() {
             }}
         >
             <Typography variant="h4" gutterBottom>
-                If en Python
+                If 
             </Typography>
             <Box
                 sx={{
