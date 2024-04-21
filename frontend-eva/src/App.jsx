@@ -5,6 +5,9 @@ import If from './components/If';
 
 import Print from './components/Print';
 
+import Variable from './components/Variable';
+import VariableEj from './components/VariableEj';
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
@@ -16,6 +19,8 @@ function App() {
                     <Route path="/basico" element={<Print />} />
                     <Route path="/exercise" element={<Exercise />} />
                     <Route path="/if" element={<If />} />
+                    <Route path="/variable" element={<Variable />} />
+                    <Route path="/variableEj" element={<VariableEj />} />
                 </Routes>
             </Router>
         </>
