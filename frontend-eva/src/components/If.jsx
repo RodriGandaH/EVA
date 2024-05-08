@@ -5,7 +5,7 @@ function If() {
         <Container
             sx={{
                 m: 2,
-                maxWidth: '70%',
+                maxWidth: '100%',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
