@@ -43,20 +43,25 @@ function IterationExersise() {
    }
   return (
     <Container>
-      <Stack direction={'row'} spacing={5} width={'100%'}>
-         <Box>
+        <Typography variant="h4" gutterBottom>
+           Iteraciones en Python
+        </Typography>
+         <Stack direction={'row'} spacing={5} width={'100%'} justifyContent={'space-between'}>
+           
+         <Box width={'50%'}>
             <Typography>
-               Explicacion teoria
+               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat.
+               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat.
             </Typography>
          </Box>
          <Stack spacing={3} width={'50%'}>
-              <TextField  defaultValue={``} multiline onChange={(e)=>{handleChange(e)}}>
+              <TextField  label="Codigo" defaultValue={``} multiline onChange={(e)=>{handleChange(e)}} minRows={4}>
                
             </TextField>
             <Button variant="contained" onClick={()=>{console.log(runScript())}}>
                Correr
             </Button>
-            <TextField>
+              <TextField multiline minRows={3}>
                {resStript}
             </TextField>
          </Stack>
