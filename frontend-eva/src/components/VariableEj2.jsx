@@ -12,25 +12,21 @@ import {
     Alert,
 } from '@mui/material';
 
-function VariableEj() {
+function VariableEj2() {
     const [data, setData] = useState(null);
     const [selectedOption, setSelectedOption] = useState(null);
     const [open, setOpen] = useState(false);
 
     useEffect(() => {
         let randomNumber = Math.floor(Math.random() * 9) + 1;
-        const aA = randomNumber + 1;
-        let randomNumber2 = Math.floor(Math.random() * 9) + 1;
-        const AA = randomNumber2 + aA;
-        let randomNumber3 = Math.floor(Math.random() * 9) + 1;
-        const Aa = randomNumber3 + AA;
-        const opciones = [`${Aa}`-1, `${Aa}`, `${AA}`, `${aA}`];
+        const aA = randomNumber + 2;
+        const opciones = [`${aA}`-1, `${aA}`-2, `${aA}`, `Error`];
         opciones.sort(() => Math.random() - 0.5); // Mezcla aleatoria de opciones
         setData({
-            pregunta: "¿Qué valor tomará la variable: Aa?",
-            codigo: `Aa = ${randomNumber}\naA = ${randomNumber2} + 1\nAA = ${randomNumber3} + aA\nAa = Aa + AA`,
+            pregunta: "¿Qué valor tomará la variable: aA ?",
+            codigo: `Aa = ${randomNumber}\naA = aA + 1 \naA+= 1`,
             opciones: opciones,
-            respuesta_correcta: opciones.indexOf(`${Aa}`), // Índice de la respuesta correcta en el arreglo de opciones
+            respuesta_correcta: opciones.indexOf(`${aA}`), // Índice de la respuesta correcta en el arreglo de opciones
         });
     }, []);
 
@@ -93,14 +89,14 @@ function VariableEj() {
                         <Button
                             variant="outlined"
                             component={Link}
-                            to="/variable"
+                            to="/variableEj"
                         >
                             Anterior
                         </Button>
                         <Button
                             variant="outlined"
                             component={Link}
-                            to="/variableEj2"
+                            to="/variableEj3"
                             onClick={handleNextClick}
                         >
                             Siguiente
@@ -117,4 +113,4 @@ function VariableEj() {
     );
 }
 
-export default VariableEj;
+export default VariableEj2;

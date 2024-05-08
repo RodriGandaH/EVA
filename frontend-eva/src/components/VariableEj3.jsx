@@ -12,25 +12,29 @@ import {
     Alert,
 } from '@mui/material';
 
-function VariableEj() {
+function VariableEj3() {
     const [data, setData] = useState(null);
     const [selectedOption, setSelectedOption] = useState(null);
     const [open, setOpen] = useState(false);
 
     useEffect(() => {
         let randomNumber = Math.floor(Math.random() * 9) + 1;
-        const aA = randomNumber + 1;
+        const aA = randomNumber + 2;
         let randomNumber2 = Math.floor(Math.random() * 9) + 1;
-        const AA = randomNumber2 + aA;
-        let randomNumber3 = Math.floor(Math.random() * 9) + 1;
-        const Aa = randomNumber3 + AA;
-        const opciones = [`${Aa}`-1, `${Aa}`, `${AA}`, `${aA}`];
+        const bB = randomNumber2 + 2;
+        let cC;
+        if (aA > bB) {
+            cC = aA - bB;
+          } else {
+            cC = aA + bB;
+          }
+        const opciones = [`${aA}`, `${cC}`, `${bB}`, `Error`];
         opciones.sort(() => Math.random() - 0.5); // Mezcla aleatoria de opciones
         setData({
-            pregunta: "¿Qué valor tomará la variable: Aa?",
-            codigo: `Aa = ${randomNumber}\naA = ${randomNumber2} + 1\nAA = ${randomNumber3} + aA\nAa = Aa + AA`,
+            pregunta: "¿Qué valor tomará la variable: aA?",
+            codigo: `aA = ${aA}\nbB = ${bB}\nif aA > bB:  \n     aA= aA-bB\nelse:\n     aA=aA+bB`,
             opciones: opciones,
-            respuesta_correcta: opciones.indexOf(`${Aa}`), // Índice de la respuesta correcta en el arreglo de opciones
+            respuesta_correcta: opciones.indexOf(`${cC}`), // Índice de la respuesta correcta en el arreglo de opciones
         });
     }, []);
 
@@ -93,14 +97,14 @@ function VariableEj() {
                         <Button
                             variant="outlined"
                             component={Link}
-                            to="/variable"
+                            to="/variableEj2"
                         >
                             Anterior
                         </Button>
                         <Button
                             variant="outlined"
                             component={Link}
-                            to="/variableEj2"
+                            to="/if"
                             onClick={handleNextClick}
                         >
                             Siguiente
@@ -117,4 +121,4 @@ function VariableEj() {
     );
 }
 
-export default VariableEj;
+export default VariableEj3;
