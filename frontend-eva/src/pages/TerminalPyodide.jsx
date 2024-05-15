@@ -40,16 +40,22 @@ function TerminalPyodide() {
             </Button>
 
             <Typography>Ouput:</Typography>
-            <TextareaAutosize
-               style={{
-                  width: "100%",
-                  height: "200px",
-                  fontFamily: "monospace",
-                  fontSize: "1rem",
-               }}>
+            <code style={{
+               width: "100%",
+               height: "200px",
+               fontFamily: "monospace",
+               fontSize: "1rem",
+            }}>{pyoutput}</code>
+            {/* <TextareaAutosize style={{
+               width: "100%",
+               height: "200px",
+               fontFamily: "monospace",
+               fontSize: "1rem",
+            }}
+            value={pyoutput}>
 
-            {pyoutput}
-            </TextareaAutosize>
+            </TextareaAutosize> */}
+           
 
          </Box>
       </>
