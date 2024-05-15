@@ -5,7 +5,7 @@ import Exercise from "./../src/components/Exercise";
 import If from "./../src/components/If";
 import TestPage from "../src/pages/TestPage";
 import IterationExercise from "../src/pages/IterationExercise";
-
+import TerminalPyodide from "../src/pages/TerminalPyodide";
 function Router() {
   return (
      <Routes>
@@ -15,6 +15,7 @@ function Router() {
         <Route path="/if" element={<If />} />
         <Route path="/test" element={<TestPage />} />
         <Route path="iteration_excercise" element = {<IterationExercise/>}/>
+        <Route path="/terminal" element = {<TerminalPyodide/>}/>
      </Routes>
   )
 }
