@@ -6,6 +6,7 @@ import If from "./../src/components/If";
 import TestPage from "../src/pages/TestPage";
 import IterationExercise from "../src/pages/IterationExercise";
 import TerminalPyodide from "../src/pages/TerminalPyodide";
+import CreateExercise from "../src/pages/CreateExercise"
 function Router() {
   return (
      <Routes>
@@ -16,6 +17,7 @@ function Router() {
         <Route path="/test" element={<TestPage />} />
         <Route path="iteration_excercise" element = {<IterationExercise/>}/>
         <Route path="/terminal" element = {<TerminalPyodide/>}/>
+        <Route path="/create_exercise" element = {<CreateExercise/>}/>
      </Routes>
   )
 }

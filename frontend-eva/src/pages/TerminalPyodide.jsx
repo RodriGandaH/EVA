@@ -10,7 +10,7 @@ function TerminalPyodide() {
 
    return (
       <>
-         <Typography variant="h4">Interprete de  Python</Typography>
+         {/* <Typography variant="h4">Interprete de  Python</Typography> */}
          <Box>
             <TextareaAutosize
                style={{

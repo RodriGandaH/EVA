@@ -13,12 +13,18 @@
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@mui/material": "^5.15.15",
+    "@tiptap/extension-color": "^2.4.0",
+    "@tiptap/extension-underline": "^2.4.0",
+    "@tiptap/pm": "^2.4.0",
+    "@tiptap/react": "^2.4.0",
+    "@tiptap/starter-kit": "^2.4.0",
     "ace-builds": "^1.33.2",
     "jspython-interpreter": "^2.1.15",
     "pyodide": "^0.23.2",
     "react": "^18.2.0",
     "react-ace": "^11.0.1",
     "react-dom": "^18.2.0",
+    "react-icons": "^5.2.1",
     "react-router-dom": "^6.22.3"
   },
   "devDependencies": {
