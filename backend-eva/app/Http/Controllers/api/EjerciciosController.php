@@ -18,7 +18,6 @@ class EjerciciosController extends Controller
     public function store(Request $request)
     {
         $ejercicio = new Ejercicio;
-        $ejercicio->titulo = $request->input('titulo');
         $ejercicio->descripcion = $request->input('descripcion');
         $ejercicio->codigo_docente = $request->input('codigo_docente');
         $ejercicio->codigo_estudiante = $request->input('codigo_estudiante');

@@ -10,5 +10,5 @@ class Ejercicio extends Model
     use HasFactory;
 
     protected $table = 'ejercicios';
-    protected $fillable = ['titulo', 'descripcion', 'codigo_docente', 'codigo_estudiante'];
+    protected $fillable = ['descripcion', 'codigo_docente', 'codigo_estudiante'];
 }

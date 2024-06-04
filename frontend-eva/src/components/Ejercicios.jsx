@@ -76,9 +76,6 @@ function Ejercicios() {
 
     return (
         <Container>
-            <Typography variant="h4" gutterBottom>
-                {ejercicios[ejercicioActual]?.titulo}
-            </Typography>
             <Typography variant="body1">
                 {ejercicios[ejercicioActual]?.descripcion}
             </Typography>

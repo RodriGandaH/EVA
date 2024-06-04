@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('ejercicios', function (Blueprint $table) {
             $table->id();
-            $table->string('titulo');
             $table->text('descripcion');
             $table->text('codigo_docente');
             $table->text('codigo_estudiante');

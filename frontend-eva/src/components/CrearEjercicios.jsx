@@ -14,7 +14,6 @@ import {
 function CrearEjercicios() {
     const [codigoDocente, setCodigoDocente] = useState('');
     const [codigoEstudiante, setCodigoEstudiante] = useState('');
-    const [titulo, setTitulo] = useState('');
     const [descripcion, setDescripcion] = useState('');
 
     const handleSubmit = async () => {
@@ -24,7 +23,6 @@ function CrearEjercicios() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                titulo,
                 descripcion,
                 codigo_docente: codigoDocente,
                 codigo_estudiante: codigoEstudiante,
@@ -37,7 +35,6 @@ function CrearEjercicios() {
 
         const data = await response.json();
         console.log(data);
-        setTitulo('');
         setDescripcion('');
         setCodigoDocente('');
         setCodigoEstudiante('');
@@ -49,11 +46,6 @@ function CrearEjercicios() {
                 Crear Ejercicio
             </Typography>
             <Stack spacing={3}>
-                <TextField
-                    label="Título"
-                    value={titulo}
-                    onChange={(e) => setTitulo(e.target.value)}
-                />
                 <TextField
                     label="Descripción"
                     value={descripcion}
