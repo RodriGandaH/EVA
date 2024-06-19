@@ -7,6 +7,8 @@ import TestPage from "../src/pages/TestPage";
 import IterationExercise from "../src/pages/IterationExercise";
 import TerminalPyodide from "../src/pages/TerminalPyodide";
 import CreateExercise from "../src/pages/CreateExercise"
+import CrearEjercicios from '../src/components/CrearEjercicios';
+import Ejercicios from '../src/components/Ejercicios';
 function Router() {
   return (
      <Routes>
@@ -18,8 +20,10 @@ function Router() {
         <Route path="iteration_excercise" element = {<IterationExercise/>}/>
         <Route path="/terminal" element = {<TerminalPyodide/>}/>
         <Route path="/create_exercise" element = {<CreateExercise/>}/>
+        <Route path="crear-ejercicios" element={<CrearEjercicios />} />
+        <Route path="/ejercicios" element={<Ejercicios />} />
      </Routes>
   )
 }
 
-export default Router
+export default Router;
