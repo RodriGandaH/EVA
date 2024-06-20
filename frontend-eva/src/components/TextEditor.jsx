@@ -4,6 +4,7 @@ import ListItem from '@tiptap/extension-list-item'
 import TextStyle from "@tiptap/extension-text"
 import StarterKit from '@tiptap/starter-kit'
 import UnderLine from '@tiptap/extension-underline'
+import { useState } from 'react'
 import { EditorProvider, useCurrentEditor, useEditor,EditorContent } from '@tiptap/react'
 import { FaBold,FaItalic,FaCode, FaStrikethrough,FaHeading,FaListOl,
    FaListUl,FaQuoteLeft,FaRedo,FaUndo,FaCodeBranch,
@@ -45,19 +46,7 @@ import { FaBold,FaItalic,FaCode, FaStrikethrough,FaHeading,FaListOl,
             >
                <FaItalic/>
             </Button>
-            {/* <Button variant='contained'
-               onClick={() => editor.chain().focus().toggleUnderline().run()}
-               disabled={
-                  !editor.can()
-                     .chain()
-                     .focus()
-                     .toggleUnderline()
-                     .run()
-               }
-               className={editor.isActive('italic') ? 'is-active' : ''}
-            >
-               <FaUnderline />
-            </Button > */}
+            
             <Button variant="contained"
                onClick={() => editor.chain().focus().toggleStrike().run()}
                disabled={
@@ -157,7 +146,7 @@ import { FaBold,FaItalic,FaCode, FaStrikethrough,FaHeading,FaListOl,
          </Stack>
       )
    }
-function TextEditor() {
+function TextEditor({setDescripcion}) {
    const extensions = [
       // Color.configure({ types: [TextStyle.name, ListItem.name] }),
       TextStyle.configure({ types: [ListItem.name] }),
@@ -181,6 +170,7 @@ function TextEditor() {
       onUpdate: ({ editor }) => {
          const html = editor.getHTML();
          console.log(html);
+         setDescripcion(html);
       },
    });
 

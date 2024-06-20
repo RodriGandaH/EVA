@@ -12,7 +12,7 @@ import Ejercicios from '../src/components/Ejercicios';
 function Router() {
   return (
      <Routes>
-        <Route exact path="/" element={<Home />} />
+        <Route exact path="/home" element={<Home />} />
         <Route path="/basico" element={<Print />} />
         <Route path="/exercise" element={<Exercise />} />
         <Route path="/if" element={<If />} />

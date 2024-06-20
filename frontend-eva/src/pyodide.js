@@ -18,6 +18,7 @@ export var Pyodide = (function () {
 
 class PythonRunner {
    constructor() {
+      this.result = '';
       this._output = console.log;
       this._pyodide = null;
       this._errorOutput = console.log; // Agregar salida para errores
@@ -25,9 +26,10 @@ class PythonRunner {
          indexURL: "https://cdn.jsdelivr.net/pyodide/v0.23.4/full",
 
          stdout: (text) => {
-            console.log("todo bien");
-            console.log(text);
-            this._output(text);
+            // console.log("todo bien");
+            // console.log(text);
+            this.setResult(text);
+            this._output(this.result);
 
          },
          stderr: (text) => {
@@ -45,7 +47,7 @@ class PythonRunner {
         `)
          );
 
-         this._pyodide.runPython('print("Hello from Python!")');
+         // this._pyodide.runPython('print("Hello from Python!")');
       }).catch((error => console.log('un error', error)));
    }
    setOutput(output) {
@@ -54,14 +56,23 @@ class PythonRunner {
    setErrorOutput(output) {
       this._errorOutput = output;
    }
+   setResult(result, reset = false){
+      if(reset){
+         this.result = result;
+      }else{
+         this.result = `${this.result} ${result}\n`;
+      }
+   }
    run(code) {
       try {
+         this.setResult('',true)
          this._pyodide.runPython(code);
       } catch (e) {
          const arr = e.message.split(",")
          console.log(arr[arr.length - 1]);
          this._output(arr[arr.length - 1])
          arr[arr.leght - 1];
+         // console.log(e);
       }
       // }
 
