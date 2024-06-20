@@ -1,4 +1,4 @@
-import { Routes,Route } from "react-router-dom";
+import { Routes,Route,Navigate } from "react-router-dom";
 import Home from "./../src/components/Home"
 import Print from "./../src/components/Print"
 import Exercise from "./../src/components/Exercise";
@@ -12,7 +12,8 @@ import Ejercicios from '../src/components/Ejercicios';
 function Router() {
   return (
      <Routes>
-        <Route exact path="/home" element={<Home />} />
+        <Route  path="/" element={<Navigate to="/home" replace/>}  />
+        <Route path="/home" element={<Home/>} />
         <Route path="/basico" element={<Print />} />
         <Route path="/exercise" element={<Exercise />} />
         <Route path="/if" element={<If />} />
