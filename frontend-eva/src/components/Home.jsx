@@ -5,7 +5,7 @@ function Home() {
     return (
         <Container sx={{ m: 2, maxWidth: '70%', margin: '0 auto' }}>
             <Typography variant="h4" gutterBottom sx={{ textAlign: 'center' }}>
-                Python
+                Plataforma de Aprendizaje de Python
             </Typography>
             <Box
                 sx={{
@@ -26,18 +26,18 @@ function Home() {
                 <Button
                     variant="outlined"
                     component={Link}
-                    to=""
+                    to="/crear-ejercicios"
                     sx={{ width: '25%' }}
                 >
-                    Intermedio
+                    Crear Ejercicios
                 </Button>
                 <Button
                     variant="outlined"
                     component={Link}
-                    to=""
+                    to="/ejercicios"
                     sx={{ width: '25%' }}
                 >
-                    Avanzado
+                    Ejercicios Creados
                 </Button>
             </Box>
         </Container>
