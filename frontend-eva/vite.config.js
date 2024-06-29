@@ -8,4 +8,6 @@ export default defineConfig({
     outDir: 'dist', // Directorio de salida
   },
   plugins: [react()],
+  assetsInclude: ['**/*.zip', '**/*.apk'],
+  // assetsInclude: ['**/*.apk'],
 })

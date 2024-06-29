@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-python';
 import 'ace-builds/src-noconflict/theme-monokai';
@@ -6,6 +6,7 @@ import TerminalPyodide from '../pages/TerminalPyodide';
 import TextEditor from './TextEditor';
 import { GoHomeFill } from "react-icons/go";
 import { useNavigate } from 'react-router-dom';
+import SideBar from './SideBar';
 
 import {
     Container,
@@ -19,12 +20,14 @@ import {
 } from '@mui/material';
 
 function CrearEjercicios() {
-    const [pyprompt, setPyprompt] = useState('print("hello world!")');
+    const [pyprompt, setPyprompt] = useState('');
     const [pyoutput, setPyoutput] = useState(null);
     const [codigoEstudiante, setCodigoEstudiante] = useState('');
     const [descripcion, setDescripcion] = useState('');
     const [flag, setFlag] = useState(false);
+    const [ejercicios, setEjercicios] = useState([]);
     const navigate = useNavigate();
+
     const handleSubmit = async () => {
         setFlag(true);
         const response = await fetch('http://localhost:8000/api/ejercicios', {
@@ -43,6 +46,7 @@ function CrearEjercicios() {
             throw new Error('Error al enviar el ejercicio');
         }else{
             setFlag(false);
+            await obtenerEjercicios();
         }
 
         const data = await response.json();
@@ -52,11 +56,29 @@ function CrearEjercicios() {
         setCodigoEstudiante('');
     };
 
+    const obtenerEjercicios = async ()=>{
+        const response = await fetch('http://localhost:8000/api/ejercicios');
+        const data = await response.json();
+        setEjercicios(data);
+    }
+
+    const clickButtonSideBar = (idEjercicio)=>{
+        const ejercicioActual = ejercicios.find(ejercicio => ejercicio.id === idEjercicio);
+        setPyprompt(ejercicioActual.codigo_docente);
+        setDescripcion(ejercicioActual.descripcion);
+        setCodigoEstudiante(ejercicioActual.codigo_estudiante);
+    }
+    useEffect(() => {
+        obtenerEjercicios();
+    }, [])
+    
     return (
+    <Stack>
+        <SideBar ejercicios={ejercicios} userType={'teacher'} clickButtonSideBar={clickButtonSideBar}/>
         <Container>
             <Stack direction={'row'} justifyContent={'space-between'}>
                 <Typography variant="h4" gutterBottom>
-                    Crear Ejercicio
+                    Creacion de Ejercicios
                 </Typography>
                 <IconButton
                     sx={{
@@ -76,7 +98,7 @@ function CrearEjercicios() {
             </Stack>
             <Stack spacing={3}>
                 <Typography variant="h6">Descripcion</Typography>
-                <TextEditor setDescripcion={setDescripcion}/>
+                <TextEditor setDescripcion={setDescripcion} descripcion={descripcion}/>
                 <Typography variant="h6">Código Docente</Typography>
                 <TerminalPyodide pyprompt={pyprompt} setPyprompt={setPyprompt} pyoutput={pyoutput} setPyoutput={setPyoutput}/>
 
@@ -93,12 +115,13 @@ function CrearEjercicios() {
                         showLineNumbers: true,
                     }}
                     value={codigoEstudiante}
-                />
+                    />
                 <Button variant="contained" onClick={handleSubmit} disabled={flag}>
                     {!flag ? 'Guardar Ejercicio' : <CircularProgress size={20} color='success' />}
                 </Button>
             </Stack>
         </Container>
+    </Stack>
     );
 }
 

@@ -4,7 +4,7 @@ import ListItem from '@tiptap/extension-list-item'
 import TextStyle from "@tiptap/extension-text"
 import StarterKit from '@tiptap/starter-kit'
 import UnderLine from '@tiptap/extension-underline'
-import { useState } from 'react'
+import { useState,useRef,useEffect } from 'react'
 import { EditorProvider, useCurrentEditor, useEditor,EditorContent } from '@tiptap/react'
 import { FaBold,FaItalic,FaCode, FaStrikethrough,FaHeading,FaListOl,
    FaListUl,FaQuoteLeft,FaRedo,FaUndo,FaCodeBranch,
@@ -146,7 +146,9 @@ import { FaBold,FaItalic,FaCode, FaStrikethrough,FaHeading,FaListOl,
          </Stack>
       )
    }
-function TextEditor({setDescripcion}) {
+function TextEditor({setDescripcion,descripcion}) {
+   console.log(descripcion);
+  
    const extensions = [
       // Color.configure({ types: [TextStyle.name, ListItem.name] }),
       TextStyle.configure({ types: [ListItem.name] }),
@@ -166,14 +168,27 @@ function TextEditor({setDescripcion}) {
 
    const editor = useEditor({
       extensions:extensions,
-      UnderLine,
+      // UnderLine,
+       content: descripcion || '' ,
       onUpdate: ({ editor }) => {
          const html = editor.getHTML();
          console.log(html);
-         setDescripcion(html);
+          setDescripcion(html);
       },
    });
+   const isInitialMount = useRef(true);
 
+   useEffect(() => {
+      if (isInitialMount.current) {
+         isInitialMount.current = false;
+      } else {
+         editor?.commands.setContent(descripcion);
+      }
+   }, [descripcion, editor]);
+
+   // if (descripcion = ! '') {
+   //    editor?.commands.setContent('copia de descripcion');
+   // }
   return (
      <Box sx={{borderRadius:'5px', border: '1px solid gray'}}>
         {/* <EditorProvider slotBefore={<MenuBar />} extensions={extensions} content={content}></EditorProvider> */}

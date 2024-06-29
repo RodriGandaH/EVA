@@ -7,8 +7,18 @@ import { Container, Grid, Typography, Button, TextField, Stack, IconButton, Circ
 import TerminalPyodide from '../pages/TerminalPyodide';
 import { useNavigate } from 'react-router-dom';
 import { GoHomeFill } from "react-icons/go";
+import SideBar from './SideBar';
+import {
+    ScormProcessInitialize,
+    ScormProcessTerminate,
+    ScormProcessGetValue,
+    ScormProcessSetValue,
+    ScormProcessCommit
+} from '../../scorm-utils';
 
 function Ejercicios() {
+    const [scormData, setScormData] = useState({});
+    const [courseData, setCourseData] = useState({});
     const [pyprompt, setPyprompt] = useState('');
     const [pyoutput, setPyoutput] = useState(null);
     const navigate = useNavigate();
@@ -23,6 +33,75 @@ function Ejercicios() {
     const [intentosFallidos, setIntentosFallidos] = useState(0); // Estado para contar los intentos fallidos
 
     // Función para procesar el código del estudiante y ocultar ayudas según los intentos fallidos
+    useEffect(() => {
+      obtenerEjercicios();
+      ScormProcessInitialize();
+      window.onload = handleBeforeUnload;
+      window.onbeforeunload = handleBeforeUnload;
+      const initialValues = {
+        name : ScormProcessGetValue('cmi.learner_name',false),
+        status : ScormProcessGetValue('cmi.completion_status', false),
+        success: ScormProcessGetValue('cmi.success_status', false),
+        score :  0,
+        location : ScormProcessGetValue('cmi.location',false),
+      }
+        ScormProcessSetValue('cmi.score.min', '0');
+        ScormProcessSetValue('cmi.score.max', '100');
+        ScormProcessCommit();
+      setScormData(initialValues);
+        console.log('obteniendo nota',initialValues);
+        
+      return () => {
+          window.onload = null;
+          window.onbeforeunload = null;
+        ScormProcessTerminate();
+      }
+    }, [])
+
+    const handleBeforeUnload = () => {
+        ScormProcessSetValue('cmi.success_status', 'failed');
+        ScormProcessSetValue('cmi.completion_status', 'incomplete');
+        ScormProcessCommit()
+        ScormProcessSetValue('cmi.location', `${ejercicioActual}`);
+        // verifySuccess();
+        ScormProcessTerminate();
+    };
+   
+    useEffect(() => {
+        console.log('Cambio scorm Data', scormData);
+    }, [scormData])
+    
+    const verifyStatus = ()=>{
+    if (ejercicioActual === 0) {
+        setScormData({ ...scormData, status: 'not attempted' });
+        ScormProcessSetValue('cmi.completion_status', 'not attempted');
+        ScormProcessCommit();
+    } else if (ejercicioActual === 1) {
+        setScormData({ ...scormData, status: 'incomplete' });
+        ScormProcessSetValue('cmi.completion_status', 'incomplete');
+        ScormProcessCommit();
+    } else if (ejercicioActual === 2) {
+        setScormData({ ...scormData, status: 'completed' });
+        ScormProcessSetValue('cmi.completion_status', 'completed');
+        ScormProcessCommit();
+    }
+    }
+    const verifySuccess = ()=>{
+        if (scormData.score >= 51) {
+            setScormData({ ...scormData, success: 'passed' });
+            ScormProcessSetValue('cmi.success_status', 'passed');
+            ScormProcessCommit();
+        } else if (scormData.score < 51) {
+            setScormData({ ...scormData, success: 'failed' });
+            ScormProcessSetValue('cmi.success_status', 'failed');
+            ScormProcessCommit();
+        } else  {
+            setScormData({ ...scormData, success: 'unknown' });
+            ScormProcessSetValue('cmi.success_status', 'unknown');
+            ScormProcessCommit();
+        }
+    }
+    
     const procesarCodigoEstudiante = (codigo, intentos) => {
         let codigoProcesado = codigo;
         if (intentos < 3) {
@@ -48,17 +127,13 @@ function Ejercicios() {
         return codigo.replace(/#ayuda 1.*$/gm, '').replace(/#ayuda 2.*$/gm, '');
     };
 
-    useEffect(() => {
-        obtenerEjercicios();
-    }, []);
 
     useEffect(() => {
         setFlag(false);
     }, [ejercicios]);
 
     useEffect(() => {
-        console.log('Resultado Estudiante', resultadoEstudiante);
-        console.log('Resultado Docente', resultadoDocente);
+
     }, [resultadoEstudiante, resultadoDocente]);
 
     const runScriptEstudiante = async () => {
@@ -103,6 +178,9 @@ function Ejercicios() {
     };
 
     const handleSiguiente = () => {
+        setScormData({...scormData,score: scormData.score + 20})
+        ScormProcessSetValue('cmi.score.raw', `${scormData.score + 20}`);
+        ScormProcessCommit();
         const nextEjercicio = ejercicioActual + 1;
         setEjercicioActual(nextEjercicio);
         setPyprompt(procesarCodigoInicial(ejercicios[nextEjercicio].codigo_estudiante));
@@ -111,7 +189,14 @@ function Ejercicios() {
         setResultadoEstudiante('');
     };
 
+    const clickButtonSideBar = (idEjercicio)=>{
+        const indexEjercicio = ejercicios.findIndex((ejercicio) => ejercicio.id === idEjercicio);
+        setEjercicioActual(indexEjercicio);
+    }
+
     return (
+    <Stack direction={'row'}>
+        <SideBar ejercicios={ejercicios} clickButtonSideBar={clickButtonSideBar} userType={'student'}/>
         <Container>
             {ejercicios.length === 0 ?
                 <Box
@@ -126,7 +211,7 @@ function Ejercicios() {
                         alignItems: 'center', // Centrado vertical
                         backgroundColor: '#f0f0f0', // Color de fondo opcional
                     }}
-                >
+                    >
                     {!flag ? <CircularProgress size={50} /> : <Typography>No Hay Ejercicios creados</Typography>}
                 </Box>
                 :
@@ -212,11 +297,15 @@ function Ejercicios() {
                             >
                                 Siguiente
                             </Button>
+                            <Box>
+                                {`${scormData}`}
+                            </Box>
                         </Grid>
                     </Grid>
                 </>
             }
         </Container>
+    </Stack>
     );
 }
 
