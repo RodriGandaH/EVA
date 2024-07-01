@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <resources>
+<resource identifier="RESOURCE1" adlcp:scormType="sco" href="output/index.html#/ejercicios">
+      <file href="assets/index-0YscFAER.js"/>
+      <file href="assets/index-D6o9lrWo.css"/>
+      <file href="assets/index-D_XLU-fg.js"/>
+      <file href="assets/scorm-project-DjwAPpdr.zip"/>
+      <file href="assets/__vite-browser-external-FmFgRqLi.js"/>
+      <file href="index.html"/>
+      <file href="python1.png"/>
+      <file href="scorm-project.zip"/>
+      <file href="vite.svg"/>
+    </resource>
+  </resources>
+</manifest>

@@ -3,9 +3,7 @@ import { Button,Typography,Stack,Box } from "@mui/material";
 import AceEditor from 'react-ace';
 
 import { Pyodide } from "../pyodide";
-function TerminalPyodide({ pyprompt, setPyprompt, pyoutput, setPyoutput }) {
-   // const [pyprompt, setPyprompt] = useState('print("hello world!"');
-   // const [pyoutput, setPyoutput] = useState(null);
+function TerminalPyodide({ pyprompt, setPyprompt, pyoutput, setPyoutput,runFunction = ()=>{} }) {
    const pyodide = Pyodide.getInstance();
 
    return (
@@ -32,10 +30,10 @@ function TerminalPyodide({ pyprompt, setPyprompt, pyoutput, setPyoutput }) {
                   onClick={() => {
                      pyodide.setOutput((text) => {
                         setPyoutput(`${text} `);
+                        runFunction(text);
                      });
-                     // console.log("clicked", pyprompt);
-                     
                      pyodide.run(pyprompt);
+                    
                   }}
                   >
                   Run

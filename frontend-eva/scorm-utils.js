@@ -1,10 +1,10 @@
-// scorm-utils.js
+
 
 var nFindAPITries = 0;
 var API = null;
 var maxTries = 500;
 
-// ADL-provided API discovery algorithm
+
 function ScanForAPI(win) {
    while ((win.API_1484_11 == null) && (win.parent != null) && (win.parent != win)) {
       nFindAPITries++;

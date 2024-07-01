@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { jsPython } from 'jspython-interpreter';
-import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-python';
 import 'ace-builds/src-noconflict/theme-monokai';
 import { Container, Grid, Typography, Button, TextField, Stack, IconButton, CircularProgress, Box } from '@mui/material';
@@ -8,26 +6,21 @@ import TerminalPyodide from '../pages/TerminalPyodide';
 import { useNavigate } from 'react-router-dom';
 import { GoHomeFill } from "react-icons/go";
 import SideBar from './SideBar';
+import { Pyodide } from '../pyodide';
 import {
     ScormProcessInitialize,
     ScormProcessTerminate,
-    ScormProcessGetValue,
-    ScormProcessSetValue,
-    ScormProcessCommit
 } from '../../scorm-utils';
+import { setScoreCompletionSuccess } from '../../scorm-seters';
 
 function Ejercicios() {
-    const [scormData, setScormData] = useState({});
-    const [courseData, setCourseData] = useState({});
+    const pyodide = Pyodide.getInstance();
     const [pyprompt, setPyprompt] = useState('');
     const [pyoutput, setPyoutput] = useState(null);
     const navigate = useNavigate();
     const [flag, setFlag] = useState(false);
     const [ejercicios, setEjercicios] = useState([]);
     const [ejercicioActual, setEjercicioActual] = useState(0);
-    const [codigoEstudiante, setCodigoEstudiante] = useState('');
-    const [resultadoEstudiante, setResultadoEstudiante] = useState('');
-    const [isError, setIsError] = useState(false);
     const [resultadoDocente, setResultadoDocente] = useState('');
     const [puedeContinuar, setPuedeContinuar] = useState(false);
     const [intentosFallidos, setIntentosFallidos] = useState(0); // Estado para contar los intentos fallidos
@@ -38,155 +31,83 @@ function Ejercicios() {
       ScormProcessInitialize();
       window.onload = handleBeforeUnload;
       window.onbeforeunload = handleBeforeUnload;
-      const initialValues = {
-        name : ScormProcessGetValue('cmi.learner_name',false),
-        status : ScormProcessGetValue('cmi.completion_status', false),
-        success: ScormProcessGetValue('cmi.success_status', false),
-        score :  0,
-        location : ScormProcessGetValue('cmi.location',false),
-      }
-        ScormProcessSetValue('cmi.score.min', '0');
-        ScormProcessSetValue('cmi.score.max', '100');
-        ScormProcessCommit();
-      setScormData(initialValues);
-        console.log('obteniendo nota',initialValues);
-        
-      return () => {
-          window.onload = null;
-          window.onbeforeunload = null;
-        ScormProcessTerminate();
+      return()=>{
+        handleBeforeUnload();
       }
     }, [])
-
-    const handleBeforeUnload = () => {
-        ScormProcessSetValue('cmi.success_status', 'failed');
-        ScormProcessSetValue('cmi.completion_status', 'incomplete');
-        ScormProcessCommit()
-        ScormProcessSetValue('cmi.location', `${ejercicioActual}`);
-        // verifySuccess();
-        ScormProcessTerminate();
-    };
-   
-    useEffect(() => {
-        console.log('Cambio scorm Data', scormData);
-    }, [scormData])
-    
-    const verifyStatus = ()=>{
-    if (ejercicioActual === 0) {
-        setScormData({ ...scormData, status: 'not attempted' });
-        ScormProcessSetValue('cmi.completion_status', 'not attempted');
-        ScormProcessCommit();
-    } else if (ejercicioActual === 1) {
-        setScormData({ ...scormData, status: 'incomplete' });
-        ScormProcessSetValue('cmi.completion_status', 'incomplete');
-        ScormProcessCommit();
-    } else if (ejercicioActual === 2) {
-        setScormData({ ...scormData, status: 'completed' });
-        ScormProcessSetValue('cmi.completion_status', 'completed');
-        ScormProcessCommit();
-    }
-    }
-    const verifySuccess = ()=>{
-        if (scormData.score >= 51) {
-            setScormData({ ...scormData, success: 'passed' });
-            ScormProcessSetValue('cmi.success_status', 'passed');
-            ScormProcessCommit();
-        } else if (scormData.score < 51) {
-            setScormData({ ...scormData, success: 'failed' });
-            ScormProcessSetValue('cmi.success_status', 'failed');
-            ScormProcessCommit();
-        } else  {
-            setScormData({ ...scormData, success: 'unknown' });
-            ScormProcessSetValue('cmi.success_status', 'unknown');
-            ScormProcessCommit();
-        }
-    }
-    
-    const procesarCodigoEstudiante = (codigo, intentos) => {
-        let codigoProcesado = codigo;
-        if (intentos < 3) {
-            codigoProcesado = codigo.replace(/#ayuda 1.*$/gm, '').replace(/#ayuda 2.*$/gm, '');
-        } else if (intentos >= 3 && intentos < 5) {
-            codigoProcesado = codigo.replace(/#ayuda 2.*$/gm, '');
-        }
-        setCodigoEstudiante(codigoProcesado);
-    };
-
-    const obtenerEjercicios = async () => {
-        setFlag(true);
-        const response = await fetch('http://localhost:8000/api/ejercicios');
-        const data = await response.json();
-        setEjercicios(data);
-        setEjercicioActual(0); // Iniciar desde el primer ejercicio
-        setPyprompt(procesarCodigoInicial(data[0].codigo_estudiante));
-        setCodigoEstudiante(procesarCodigoInicial(data[0].codigo_estudiante));
-    };
-
-    const procesarCodigoInicial = (codigo) => {
-        // Función para limpiar el código inicial de ayudas
-        return codigo.replace(/#ayuda 1.*$/gm, '').replace(/#ayuda 2.*$/gm, '');
-    };
-
 
     useEffect(() => {
         setFlag(false);
     }, [ejercicios]);
 
     useEffect(() => {
+        setResultadoDocente(runCodigoDocente(ejercicios[ejercicioActual]?.codigo_docente));
+        setPyprompt(procesarCodigoInicial(ejercicios[ejercicioActual]?.codigo_estudiante || ''));
+        setPyoutput('');
+        setIntentosFallidos(0);
+        setScoreCompletionSuccess(ejercicioActual, ejercicios.length, ejercicioActual === ejercicios.length - 1 && puedeContinuar);
 
-    }, [resultadoEstudiante, resultadoDocente]);
+    }, [ejercicioActual,ejercicios])
 
-    const runScriptEstudiante = async () => {
-        const fullScript = codigoEstudiante + '\nprint(res)';
-        try {
-            const result = await jsPython().evaluate(fullScript);
-            setResultadoEstudiante(result);
-            setIsError(false);
-            return result;
-        } catch (error) {
-            setResultadoEstudiante(error.message);
-            setIsError(true);
-            return error.message;
+    useEffect(() => {
+        let codigoProcesado;
+        if (intentosFallidos < 3) {
+            codigoProcesado = pyprompt.replace(/#ayuda 1.*$/gm, '').replace(/#ayuda 2.*$/gm, '');
+        } else if (intentosFallidos >= 3 && intentosFallidos < 5) {
+            codigoProcesado = pyprompt.replace(/#ayuda 2.*$/gm, '');
         }
+        setPyprompt(codigoProcesado);
+        console.log(intentosFallidos);
+
+    }, [intentosFallidos])
+    
+
+    const obtenerEjercicios = async () => {
+        setFlag(true);
+        const response = await fetch('http://localhost:8000/api/ejercicios');
+        const data = await response.json();
+        setEjercicios(data);
+    };
+    
+    const runCodigoDocente = (codigoDocente) =>{
+        console.log('codigo docente recibido', codigoDocente);
+        let resultado;
+        pyodide.setOutput((text) => {
+            resultado = text;
+        });
+        pyodide.run(codigoDocente);
+        console.log('resultado docenteEnRunCodigo',resultado);
+        return resultado
+    }
+
+    const runFunction = (resultadoEstudiante) =>{
+        let correcto =  resultadoDocente == resultadoEstudiante
+        if(!correcto){
+            setIntentosFallidos(intentosFallidos+1);
+            return;
+        }
+        console.log("resDoc: ",resultadoDocente,'\n','resEst',resultadoEstudiante );
+        setPuedeContinuar(true)
+    }
+    const handleBeforeUnload = () => {
+        // console.log('llamando a handleBeforeUnload',ejercicios);
+        // setScoreCompletionSuccess(ejercicioActual, ejercicios.length, ejercicioActual === ejercicios.length - 1 && puedeContinuar);
+        ScormProcessTerminate();
+        window.onload = null;
+        window.onbeforeunload = null;
+    };
+    
+    const procesarCodigoInicial = (codigo) => {
+        return codigo.replace(/#ayuda 1.*$/gm, '').replace(/#ayuda 2.*$/gm, '');
     };
 
-    const runScriptDocente = async () => {
-        const fullScript = ejercicios[ejercicioActual].codigo_docente + '\nprint(res)';
-        try {
-            const result = await jsPython().evaluate(fullScript);
-            setResultadoDocente(result);
-            return result;
-        } catch (error) {
-            setResultadoDocente(error.message);
-            return error.message;
-        }
-    };
-
-    const handleRun = async () => {
-        const resultadoEstudiante = await runScriptEstudiante();
-        const resultadoDocente = await runScriptDocente();
-
-        if (resultadoEstudiante === resultadoDocente) {
-            setPuedeContinuar(true);
-            setIntentosFallidos(0); // Reiniciar intentos fallidos si es correcto
-        } else {
-            // Incrementar intentos fallidos y procesar el código del estudiante
-            const nuevosIntentosFallidos = intentosFallidos + 1;
-            setIntentosFallidos(nuevosIntentosFallidos);
-            procesarCodigoEstudiante(ejercicios[ejercicioActual].codigo_estudiante, nuevosIntentosFallidos);
-        }
-    };
 
     const handleSiguiente = () => {
-        setScormData({...scormData,score: scormData.score + 20})
-        ScormProcessSetValue('cmi.score.raw', `${scormData.score + 20}`);
-        ScormProcessCommit();
         const nextEjercicio = ejercicioActual + 1;
         setEjercicioActual(nextEjercicio);
-        setPyprompt(procesarCodigoInicial(ejercicios[nextEjercicio].codigo_estudiante));
-        setCodigoEstudiante(procesarCodigoInicial(ejercicios[nextEjercicio].codigo_estudiante)); // Actualizar código del estudiante
+        setPyprompt(procesarCodigoInicial(ejercicios[nextEjercicio]?.codigo_estudiante));
+        setIntentosFallidos(0)
         setPuedeContinuar(false);
-        setResultadoEstudiante('');
     };
 
     const clickButtonSideBar = (idEjercicio)=>{
@@ -239,40 +160,9 @@ function Ejercicios() {
                     <Typography variant="body1" dangerouslySetInnerHTML={{ __html: ejercicios[ejercicioActual]?.descripcion }}>
                         
                     </Typography>
-                    <AceEditor
-                        mode="python"
-                        theme="monokai"
-                        onChange={setCodigoEstudiante}
-                        name="codigoEstudiante"
-                        editorProps={{ $blockScrolling: true }}
-                        height="12em"
-                        width="100%"
-                        setOptions={{
-                            showLineNumbers: true,
-                        }}
-                        value={codigoEstudiante}
-                    />
+                    <TerminalPyodide pyoutput={pyoutput} pyprompt={pyprompt} setPyoutput={setPyoutput} setPyprompt={setPyprompt}  runFunction={runFunction}/>
                     <br />
                     <Grid container direction="column" spacing={2}>
-                        <Grid item xs={12} container justifyContent="flex-start">
-                            <Button variant="contained" onClick={handleRun}>
-                                Correr
-                            </Button>
-                        </Grid>
-
-                        <Grid item xs={12}>
-                            <TextField
-                                fullWidth
-                                multiline
-                                minRows={3}
-                                value={resultadoEstudiante}
-                                error={isError}
-                                InputProps={{
-                                    style: { color: isError ? 'red' : 'black' },
-                                }}
-                            />
-                        </Grid>
-
                         {intentosFallidos >= 3 && intentosFallidos < 5 && (
                             <Grid item xs={12}>
                                 <Typography variant="body1" color="error">
@@ -290,16 +180,17 @@ function Ejercicios() {
                         )}
 
                         <Grid item xs={12} container justifyContent="flex-end">
-                            <Button
+                            {
+                                ejercicioActual === ejercicios.length-1 && puedeContinuar ? 
+                                <Button>Curso Terminado Felicitaciones</Button> :
+                                <Button
                                 variant="contained"
                                 disabled={!puedeContinuar}
                                 onClick={handleSiguiente}
-                            >
-                                Siguiente
-                            </Button>
-                            <Box>
-                                {`${scormData}`}
-                            </Box>
+                                >
+                                    Siguiente
+                                </Button>
+                            }
                         </Grid>
                     </Grid>
                 </>

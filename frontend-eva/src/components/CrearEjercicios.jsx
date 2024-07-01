@@ -63,11 +63,18 @@ function CrearEjercicios() {
     }
 
     const clickButtonSideBar = (idEjercicio)=>{
+        if(idEjercicio < 0){
+            setPyprompt('');
+            setDescripcion('');
+            setCodigoEstudiante('');
+            return;
+        }
         const ejercicioActual = ejercicios.find(ejercicio => ejercicio.id === idEjercicio);
         setPyprompt(ejercicioActual.codigo_docente);
         setDescripcion(ejercicioActual.descripcion);
         setCodigoEstudiante(ejercicioActual.codigo_estudiante);
     }
+
     useEffect(() => {
         obtenerEjercicios();
     }, [])
@@ -78,7 +85,7 @@ function CrearEjercicios() {
         <Container>
             <Stack direction={'row'} justifyContent={'space-between'}>
                 <Typography variant="h4" gutterBottom>
-                    Creacion de Ejercicios
+                    Crear Ejercicios
                 </Typography>
                 <IconButton
                     sx={{

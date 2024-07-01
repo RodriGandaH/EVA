@@ -147,7 +147,6 @@ import { FaBold,FaItalic,FaCode, FaStrikethrough,FaHeading,FaListOl,
       )
    }
 function TextEditor({setDescripcion,descripcion}) {
-   console.log(descripcion);
   
    const extensions = [
       // Color.configure({ types: [TextStyle.name, ListItem.name] }),
@@ -170,9 +169,9 @@ function TextEditor({setDescripcion,descripcion}) {
       extensions:extensions,
       // UnderLine,
        content: descripcion || '' ,
+       
       onUpdate: ({ editor }) => {
          const html = editor.getHTML();
-         console.log(html);
           setDescripcion(html);
       },
    });
