@@ -14,7 +14,7 @@ export const setScoreCompletionSuccess =  (answered,quantQuestions,courseComplet
       ScormProcessSetValue('cmi.completion_status','not attempted');
    }
 
-   if(coursecompleted){
+   if(courseCompleted){
       ScormProcessSetValue('cmi.success_status','passed');
       ScormProcessSetValue('cmi.completion_status', 'completed');
    }else{
