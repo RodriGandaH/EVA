@@ -21,7 +21,4 @@
 * Generar la clave de la aplicación Laravel: "php artisan key:generate"
 * Ejecutar las migraciones para crear las tablas necesarias en la base de datos: "php artisan migrate"
 * Iniciar el servidor local usando Artisan: "php artisan serve"
-## Instrucciones de uso
-* La aplicacion compara las respuestas impresas en consola del docente y del estudiante habilitando así la siguiente pregunta
-* si las respuestas no coinciden tras 3 y 5 intentos se mostraran las ayudas respectivas
-* Del apartado (creación de ejercicios) para el docente para implemetar las ayudas, estas se deben de colocar el el codigo estudiante en la parte que desea que aparezcan de la siguiente forma #ayuda 1 seguido de la ayuda y #ayuda 2 seguido de la ayuda
+
