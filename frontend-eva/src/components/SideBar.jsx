@@ -11,12 +11,24 @@ import {
 } from "@mui/material"
 import { FaChevronLeft } from "react-icons/fa";
 import { FiList } from "react-icons/fi";
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import ScormPackage from '../../public/scorm-project.zip'
 
 function SideBar({ ejercicios, clickButtonSideBar , userType }) {
    const [open, setOpen] = useState(true);
+   const [selecteds, setSelecteds] = useState([])
+   
+   useEffect(() => {
+      if(selecteds.length <= 0) setSelecteds(new Array(ejercicios.length).fill(false));
+   }, [ejercicios])
+
+   
+   
    const drawerWidth = 200;
+
+   const handleSelecteds = (index) => {
+      setSelecteds(selecteds.map((flag,i)=>index === i ? true : false));
+   }
   return (
     <div>
         {/* <IconButton onClick={()=>setOpen(true)}>
@@ -47,7 +59,7 @@ function SideBar({ ejercicios, clickButtonSideBar , userType }) {
                {
                ejercicios.map((ejercicio, index) => (
                   <ListItem key={index} disablePadding>
-                     <ListItemButton onClick={()=> clickButtonSideBar(ejercicio.id)}>
+                     <ListItemButton onClick={()=>{ clickButtonSideBar(ejercicio.id); handleSelecteds(index)}} disabled={ejercicio?.status === 'incomplete'} selected = {selecteds[index]}>
                         <ListItemText primary={`Ejercicio Nro ${index + 1}`} />
                      </ListItemButton>
                   </ListItem>
@@ -58,7 +70,7 @@ function SideBar({ ejercicios, clickButtonSideBar , userType }) {
                userType === 'teacher' && 
                <>
                   <ListItem disablePadding style={{ backgroundColor:'#1565c0',color:'white'}}>
-                     <ListItemButton onClick={() => clickButtonSideBar(-1)}>
+                       <ListItemButton onClick={() => { clickButtonSideBar(-1) ;  handleSelecteds(-1)}}>
                         <ListItemText primary={'Crear Ejercicio'} />
                      </ListItemButton>
                   </ListItem>
@@ -66,7 +78,7 @@ function SideBar({ ejercicios, clickButtonSideBar , userType }) {
                   
                   
                   <a href={ScormPackage} target="_blank" download style={{ textDecoration: 'none',color:'white' }}>
-                     <ListItemButton style={{backgroundColor:'green'}}>
+                       <ListItemButton style={{ backgroundColor: 'green' }} onClick={() =>  handleSelecteds(-1)}>
                         <ListItemText primary={'Exportar Scorm'}/>
                      </ListItemButton>
                   </a>

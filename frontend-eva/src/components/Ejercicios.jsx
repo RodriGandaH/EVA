@@ -1,52 +1,65 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import 'ace-builds/src-noconflict/mode-python';
 import 'ace-builds/src-noconflict/theme-monokai';
-import { Container, Grid, Typography, Button, TextField, Stack, IconButton, CircularProgress, Box } from '@mui/material';
+import { Container, Grid, Typography, Button,  Stack, CircularProgress, Box } from '@mui/material';
 import TerminalPyodide from '../pages/TerminalPyodide';
-import { useNavigate } from 'react-router-dom';
-import { GoHomeFill } from "react-icons/go";
 import SideBar from './SideBar';
 import { Pyodide } from '../pyodide';
 import {
+    ScormProcessGetValue,
     ScormProcessInitialize,
     ScormProcessTerminate,
 } from '../../scorm-utils';
 import { setScoreCompletionSuccess } from '../../scorm-seters';
+import AlertDialog from './Dialog';
 
 function Ejercicios() {
     const pyodide = Pyodide.getInstance();
+    const [open, setOpen] = useState(false)
     const [pyprompt, setPyprompt] = useState('');
     const [pyoutput, setPyoutput] = useState(null);
-    const navigate = useNavigate();
     const [flag, setFlag] = useState(false);
     const [ejercicios, setEjercicios] = useState([]);
     const [ejercicioActual, setEjercicioActual] = useState(0);
     const [resultadoDocente, setResultadoDocente] = useState('');
     const [puedeContinuar, setPuedeContinuar] = useState(false);
     const [intentosFallidos, setIntentosFallidos] = useState(0); // Estado para contar los intentos fallidos
+    const navigate = useNavigate();
 
     // Función para procesar el código del estudiante y ocultar ayudas según los intentos fallidos
     useEffect(() => {
-      obtenerEjercicios();
-      ScormProcessInitialize();
-      window.onload = handleBeforeUnload;
-      window.onbeforeunload = handleBeforeUnload;
+        ScormProcessInitialize();
+        obtenerEjercicios();
+        
+        window.onload = handleBeforeUnload;
+        window.onbeforeunload = handleBeforeUnload;
+        
+        setFlag(false);
       return()=>{
         handleBeforeUnload();
       }
     }, [])
-
     useEffect(() => {
-        setFlag(false);
-    }, [ejercicios]);
-
+      console.log('Ejercicios',ejercicios);
+    }, [ejercicios])
+    
+      
     useEffect(() => {
-        setResultadoDocente(runCodigoDocente(ejercicios[ejercicioActual]?.codigo_docente));
-        setPyprompt(procesarCodigoInicial(ejercicios[ejercicioActual]?.codigo_estudiante || ''));
-        setPyoutput('');
-        setIntentosFallidos(0);
-        setScoreCompletionSuccess(ejercicioActual, ejercicios.length, ejercicioActual === ejercicios.length - 1 && puedeContinuar);
-
+        console.log('ejercicio actual',ejercicioActual);
+        if(ejercicioActual>0 && ejercicioActual <= ejercicios.length && ejercicios.length >0){
+            setPyoutput('');
+            setIntentosFallidos(0);
+            setScoreCompletionSuccess(ejercicioActual, ejercicios.length, ejercicioActual === (ejercicios.length) && puedeContinuar );
+            if (ejercicioActual >= ejercicios.length) {
+                setOpen(true)
+                return
+            }
+            setResultadoDocente(runCodigoDocente(ejercicios[ejercicioActual]?.codigo_docente));
+            setPyprompt(procesarCodigoInicial(ejercicios[ejercicioActual]?.codigo_estudiante || ''));
+           
+        }
+        
     }, [ejercicioActual,ejercicios])
 
     useEffect(() => {
@@ -57,41 +70,64 @@ function Ejercicios() {
             codigoProcesado = pyprompt.replace(/#ayuda 2.*$/gm, '');
         }
         setPyprompt(codigoProcesado);
-        console.log(intentosFallidos);
-
     }, [intentosFallidos])
-    
 
+    const markCompleted = (index)=>{
+        if(index === 0) return []
+        const ejerciciosCopia = [...ejercicios];
+        if(index < ejercicios.length){
+            ejerciciosCopia[index - 1] = { ...ejerciciosCopia[index - 1], status: 'completed' }
+            ejerciciosCopia[index] = { ...ejerciciosCopia[index], status: 'attemp' }
+        }
+        return ejerciciosCopia;
+    }
+    const agregarAtributoEstado= (data,ejercicioIndice)=>{
+        const ejerciciosConEstado = data.map((ejercicio, index) => {
+            let status = 'incomplete'
+            if(index === ejercicioIndice){
+               status = 'attemp'
+            }
+            if(index < ejercicioIndice){
+                status = 'completed'
+            }
+            return {...ejercicio, status: status }
+        })
+        return ejerciciosConEstado;
+    }
     const obtenerEjercicios = async () => {
         setFlag(true);
+        const ejercicioPendiente = ScormProcessGetValue('cmi.location', false)
         const response = await fetch('http://localhost:8000/api/ejercicios');
         const data = await response.json();
-        setEjercicios(data);
+        setResultadoDocente(runCodigoDocente(data[0]?.codigo_docente));
+        setPyprompt(procesarCodigoInicial(data[0]?.codigo_estudiante || ''));
+        if(ejercicioPendiente) {
+            setEjercicioActual(Number(ejercicioPendiente))
+            setEjercicios(agregarAtributoEstado(data,Number(ejercicioPendiente)))
+            return;
+        }
+        setEjercicios(agregarAtributoEstado(data,ejercicioActual));
     };
     
     const runCodigoDocente = (codigoDocente) =>{
-        console.log('codigo docente recibido', codigoDocente);
         let resultado;
         pyodide.setOutput((text) => {
             resultado = text;
         });
         pyodide.run(codigoDocente);
-        console.log('resultado docenteEnRunCodigo',resultado);
         return resultado
     }
 
     const runFunction = (resultadoEstudiante) =>{
+        console.log("resDoc: ",resultadoDocente,'\n','resEst',resultadoEstudiante );
         let correcto =  resultadoDocente == resultadoEstudiante
         if(!correcto){
             setIntentosFallidos(intentosFallidos+1);
             return;
         }
-        console.log("resDoc: ",resultadoDocente,'\n','resEst',resultadoEstudiante );
         setPuedeContinuar(true)
     }
     const handleBeforeUnload = () => {
-        // console.log('llamando a handleBeforeUnload',ejercicios);
-        // setScoreCompletionSuccess(ejercicioActual, ejercicios.length, ejercicioActual === ejercicios.length - 1 && puedeContinuar);
         ScormProcessTerminate();
         window.onload = null;
         window.onbeforeunload = null;
@@ -103,11 +139,11 @@ function Ejercicios() {
 
 
     const handleSiguiente = () => {
+        setEjercicios(markCompleted(ejercicioActual+1));
         const nextEjercicio = ejercicioActual + 1;
         setEjercicioActual(nextEjercicio);
-        setPyprompt(procesarCodigoInicial(ejercicios[nextEjercicio]?.codigo_estudiante));
-        setIntentosFallidos(0)
-        setPuedeContinuar(false);
+        // setPyprompt(procesarCodigoInicial(ejercicios[nextEjercicio]?.codigo_estudiante));
+        setPuedeContinuar(nextEjercicio === ejercicios.length);
     };
 
     const clickButtonSideBar = (idEjercicio)=>{
@@ -119,6 +155,7 @@ function Ejercicios() {
     <Stack direction={'row'}>
         <SideBar ejercicios={ejercicios} clickButtonSideBar={clickButtonSideBar} userType={'student'}/>
         <Container>
+            {open && <AlertDialog open={open} setOpen={setOpen}/>}
             {ejercicios.length === 0 ?
                 <Box
                     sx={{
@@ -128,9 +165,9 @@ function Ejercicios() {
                         width: '100%',
                         height: '100%',
                         display: 'flex',
-                        justifyContent: 'center', // Centrado horizontal
-                        alignItems: 'center', // Centrado vertical
-                        backgroundColor: '#f0f0f0', // Color de fondo opcional
+                        justifyContent: 'center',
+                        alignItems: 'center', 
+                        backgroundColor: '#f0f0f0', 
                     }}
                     >
                     {!flag ? <CircularProgress size={50} /> : <Typography>No Hay Ejercicios creados</Typography>}
@@ -141,21 +178,7 @@ function Ejercicios() {
                         <Typography variant="h4" gutterBottom>
                             Ejercicios
                         </Typography>
-                        <IconButton
-                            sx={{
-                                width: '50px',
-                                height: '50px',
-                                borderRadius: '50%',
-                                padding: 0,
-                                backgroundColor: '#f0f0f0',
-                                '&:hover': {
-                                    backgroundColor: '#e0e0e0',
-                                },
-                            }}
-                            onClick={() => navigate('/home')}
-                        >
-                            <GoHomeFill size={25} />
-                        </IconButton>
+                        
                     </Stack>
                     <Typography variant="body1" dangerouslySetInnerHTML={{ __html: ejercicios[ejercicioActual]?.descripcion }}>
                         
@@ -181,11 +204,10 @@ function Ejercicios() {
 
                         <Grid item xs={12} container justifyContent="flex-end">
                             {
-                                ejercicioActual === ejercicios.length-1 && puedeContinuar ? 
-                                <Button>Curso Terminado Felicitaciones</Button> :
+                               
                                 <Button
                                 variant="contained"
-                                disabled={!puedeContinuar}
+                                disabled={!puedeContinuar || ejercicioActual >=ejercicios.length}
                                 onClick={handleSiguiente}
                                 >
                                     Siguiente

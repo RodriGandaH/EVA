@@ -9,6 +9,7 @@ import TerminalPyodide from "../src/pages/TerminalPyodide";
 import CreateExercise from "../src/pages/CreateExercise"
 import CrearEjercicios from '../src/components/CrearEjercicios';
 import Ejercicios from '../src/components/Ejercicios';
+import CongratilationPage from "../src/pages/CongratilationPage";
 function Router() {
   return (
      <Routes>
@@ -23,6 +24,7 @@ function Router() {
         <Route path="/create_exercise" element = {<CreateExercise/>}/>
         <Route path="crear-ejercicios" element={<CrearEjercicios />} />
         <Route path="/ejercicios" element={<Ejercicios />} />
+        <Route path="/curso-terminado" element={<CongratilationPage/>}/>
      </Routes>
   )
 }

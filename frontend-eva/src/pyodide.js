@@ -47,6 +47,10 @@ class PythonRunner {
         `)
          );
 
+
+
+
+         
          // this._pyodide.runPython('print("Hello from Python!")');
       }).catch((error => console.log('un error', error)));
    }
@@ -64,9 +68,14 @@ class PythonRunner {
       }
    }
    run(code) {
+      // console.log('codigo docente pydide',code);
       try {
          this.setResult('',true)
-         this._pyodide.runPython(code);
+         if(this._pyodide){
+            this._pyodide.runPython(code);
+         }else{
+            console.log('aun no cargo pydide');
+         }
       } catch (e) {
          const arr = e.message.split(",")
          console.log(arr[arr.length - 1]);
